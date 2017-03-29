@@ -2,17 +2,23 @@ package com.bisoft.dao;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bisoft.dao.interfaces.GenericDao;
+import com.bisoft.entities.BaseEntity;
+import com.bisoft.helper.EnumUtil.EntityState;
 
-public abstract class AbstractBaseDao<PK extends Serializable, T> implements GenericDao<PK, T> {
+public abstract class AbstractBaseDao<PK extends Serializable, T extends BaseEntity>
+		implements GenericDao<PK, T> {
 
 	private final Class<T> persistentClass;
 
@@ -33,9 +39,13 @@ public abstract class AbstractBaseDao<PK extends Serializable, T> implements Gen
 		return getSession().createCriteria(this.persistentClass);
 	}
 
+	@SuppressWarnings("unchecked")
 	public T getByKey(PK key) {
 		try {
-			return (T) getSession().get(persistentClass, key);
+			Criteria criteria=createEntityCriteria();
+			criteria.add(Restrictions.eq("id",key));
+			criteria.add(Restrictions.eq("entityState", EntityState.ACTIVE));
+			return (T) criteria.uniqueResult();
 		} catch (HibernateException e) {
 			return null;
 		}
@@ -43,6 +53,9 @@ public abstract class AbstractBaseDao<PK extends Serializable, T> implements Gen
 
 	public Boolean persist(T entity) {
 		try {
+			entity.setCreatedDate(new Date());
+			entity.setEntityState(EntityState.ACTIVE);
+			entity.setUpdatedDate(new Date());
 			getSession().persist(entity);
 			return true;
 		} catch (HibernateException e) {
@@ -52,7 +65,8 @@ public abstract class AbstractBaseDao<PK extends Serializable, T> implements Gen
 
 	public Boolean update(T entity) {
 		try {
-			getSession().update(entity);
+			entity.setUpdatedDate(new Date());
+			getSession().merge(entity);
 			return true;
 		} catch (HibernateException e) {
 			return false;
@@ -61,17 +75,21 @@ public abstract class AbstractBaseDao<PK extends Serializable, T> implements Gen
 
 	public Boolean delete(T entity) {
 		try {
-			getSession().delete(entity);
+			entity.setUpdatedDate(new Date());
+			entity.setEntityState(EntityState.PASSIVE);
+			getSession().merge(entity);
 			return true;
 		} catch (HibernateException e) {
 			return false;
 		}
 	}
-
+	@SuppressWarnings("unchecked")
 	public List<T> list() {
 		try {
-			@SuppressWarnings("unchecked")
-			List<T> list = this.createEntityCriteria().list();
+			Criteria criteria=this.createEntityCriteria();
+			criteria.add(Restrictions.eq("entityState", EntityState.ACTIVE));
+			criteria.addOrder(Order.asc("createdDate"));
+			List<T> list = criteria.list();
 			return list;
 		} catch (HibernateException e) {
 			return null;

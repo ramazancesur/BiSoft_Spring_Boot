@@ -3,7 +3,9 @@ package com.bisoft.dao.interfaces;
 import java.io.Serializable;
 import java.util.List;
 
-public interface GenericDao<PK extends Serializable, T> {
+import com.bisoft.entities.BaseEntity;
+
+public interface GenericDao<PK extends Serializable, T extends BaseEntity> {
 	T getByKey(PK key);
 
 	Boolean persist(T entity);
