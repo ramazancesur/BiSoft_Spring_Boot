@@ -1,7 +1,10 @@
 package com.bisoft.controller;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,8 @@ public class EtkinlikController {
 
 	@Autowired
 	private IKonusmaciService konusmaciService;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(EtkinlikController.class);
 
 	@GetMapping("/etkinlikList")
 	public ResponseEntity<List<Etkinlik>> getEtkiniks() {
@@ -53,6 +58,54 @@ public class EtkinlikController {
 		} else {
 			return new ResponseEntity<Etkinlik>(etkinlik, HttpStatus.OK);
 		}
+	}
+
+	@GetMapping(value = "/etkinlikList/{lstEtkinlik[]},{konusmaciID}")
+	public ResponseEntity<Boolean> insertEtkinlikKonusmaRel(@PathVariable("lstEtkinlik[]") List<Long> lstEtkinlik,
+			@PathVariable("konusmaciID") Long konusmaciID) {
+		List<Etkinlik> lstEtk = new LinkedList<>();
+		try {
+			for (Long etkinlikID : lstEtkinlik) {
+				lstEtk.add(service.findById(etkinlikID));
+			}
+			Konusmaci konusmaci = konusmaciService.findById(konusmaciID);
+			Boolean sonuc = service.insertEtkinlikKonusma(lstEtk, konusmaci);
+			return new ResponseEntity<Boolean>(sonuc, HttpStatus.OK);
+		} catch (Exception ex) {
+			LOGGER.error("error 103: Etkinlik Bulunamadi" + ex.getMessage());
+			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@GetMapping(value = "/etkinlikList/{etkinlikID},{lstKonusmaci[]}")
+	public ResponseEntity<Boolean> insertEtkinlikKonusmaRel(@PathVariable("etkinlikID") Long etkinlikID,
+			@PathVariable("lstKonusmaci[]") List<Long> lstKonusma) {
+		List<Konusmaci> lstKnsma = new LinkedList<>();
+		try {
+			for (Long konusmaID : lstKonusma) {
+				lstKnsma.add(konusmaciService.findById(konusmaID));
+			}
+			Etkinlik etkinlik = service.findById(etkinlikID);
+			Boolean sonuc = service.insertEtkinlikKonusma(etkinlik, lstKnsma);
+			return new ResponseEntity<Boolean>(sonuc, HttpStatus.OK);
+		} catch (Exception ex) {
+			LOGGER.error("error 103: Etkinlik Bulunamadi" + ex.getMessage());
+			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@GetMapping("/etkinlik/{konusmaID}")
+	public ResponseEntity<List<Etkinlik>> getKonusmaciEtkinlik(@PathVariable("konusmaciID") Long konusmaciID) {
+		List<Etkinlik> lstEtkinlik = service.getKonusmaciEtkinlik(konusmaciID);
+		return new ResponseEntity<List<Etkinlik>>(lstEtkinlik, HttpStatus.OK);
+	}
+
+	@GetMapping("/etkinlik/{etkinlikID}")
+	public ResponseEntity<List<Konusmaci>> getEtkinliktekiKonusmacilar(@PathVariable("etkinlikID") Long etkinlikID) {
+		List<Konusmaci> lstEtkinlik = service.getEtkinliktekiKonusmacilar(etkinlikID);
+		return new ResponseEntity<List<Konusmaci>>(lstEtkinlik, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/etkinlik")

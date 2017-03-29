@@ -17,8 +17,7 @@ import com.bisoft.dao.interfaces.GenericDao;
 import com.bisoft.entities.BaseEntity;
 import com.bisoft.helper.EnumUtil.EntityState;
 
-public abstract class AbstractBaseDao<PK extends Serializable, T extends BaseEntity>
-		implements GenericDao<PK, T> {
+public abstract class AbstractBaseDao<PK extends Serializable, T extends BaseEntity> implements GenericDao<PK, T> {
 
 	private final Class<T> persistentClass;
 
@@ -42,8 +41,8 @@ public abstract class AbstractBaseDao<PK extends Serializable, T extends BaseEnt
 	@SuppressWarnings("unchecked")
 	public T getByKey(PK key) {
 		try {
-			Criteria criteria=createEntityCriteria();
-			criteria.add(Restrictions.eq("id",key));
+			Criteria criteria = createEntityCriteria();
+			criteria.add(Restrictions.eq("id", key));
 			criteria.add(Restrictions.eq("entityState", EntityState.ACTIVE));
 			return (T) criteria.uniqueResult();
 		} catch (HibernateException e) {
@@ -83,10 +82,11 @@ public abstract class AbstractBaseDao<PK extends Serializable, T extends BaseEnt
 			return false;
 		}
 	}
+
 	@SuppressWarnings("unchecked")
 	public List<T> list() {
 		try {
-			Criteria criteria=this.createEntityCriteria();
+			Criteria criteria = this.createEntityCriteria();
 			criteria.add(Restrictions.eq("entityState", EntityState.ACTIVE));
 			criteria.addOrder(Order.asc("createdDate"));
 			List<T> list = criteria.list();
