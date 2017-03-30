@@ -29,15 +29,14 @@ public class EtkinlikController {
 	@Autowired
 	private IKonusmaciService konusmaciService;
 
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(EtkinlikController.class);
 
 	@GetMapping("/etkinlikList")
 	public ResponseEntity<List<Etkinlik>> getEtkiniks() {
-		List<Etkinlik> lstEtkinlik = this.service.list();
-		return new ResponseEntity<List<Etkinlik>>(lstEtkinlik, HttpStatus.OK);
+		List<Etkinlik> lstEtkinlik = this.service.list();		return new ResponseEntity<List<Etkinlik>>(lstEtkinlik, HttpStatus.OK);
 	}
-
-	@GetMapping("/etkinlik/{KonusmaciId}")
+	@GetMapping("/etkinlikMail/{konusmaciID}")
 	public ResponseEntity<Boolean> sendMail(@PathVariable("konusmaciID") Long konusmaciID) {
 		Konusmaci konusmaci = konusmaciService.findById(konusmaciID);
 		if (konusmaci != null) {

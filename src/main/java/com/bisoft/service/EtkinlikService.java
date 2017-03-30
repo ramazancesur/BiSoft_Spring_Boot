@@ -2,7 +2,11 @@ package com.bisoft.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +14,7 @@ import com.bisoft.dao.interfaces.IEtkinlikDao;
 import com.bisoft.dao.interfaces.IEtkinlikKonusmaciRelDao;
 import com.bisoft.entities.Etkinlik;
 import com.bisoft.entities.Konusmaci;
+import com.bisoft.helper.Helper;
 import com.bisoft.service.interfaces.IEtkinlikService;
 
 @Transactional
@@ -21,6 +26,13 @@ public class EtkinlikService implements IEtkinlikService {
 
 	@Autowired
 	private IEtkinlikKonusmaciRelDao etkinlikKullaniciDao;
+
+	@Autowired
+	private JavaMailSender javaMailService;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(EtkinlikService.class);
+
+	Helper helper = Helper.getInstance();
 
 	@Override
 	public List<Etkinlik> list() {
@@ -61,7 +73,24 @@ public class EtkinlikService implements IEtkinlikService {
 	@Override
 	public Boolean hatirlaticiMailGonder(String email) {
 		// TODO Auto-generated method stub
-		return null;
+		if (helper.isValidEmailAddress(email) != false) {
+			try {
+				SimpleMailMessage mailMessage = new SimpleMailMessage();
+				mailMessage.setTo(email);
+				mailMessage.setFrom("ramazancesur3");
+				mailMessage.setSubject("Hatirlatma");
+				mailMessage.setText("Bu bir hatırlatma mailidir 24 saat içinde bir tane etkinliğiniz vardır");
+				javaMailService.send(mailMessage);
+				return true;
+			} catch (Exception ex) {
+				LOGGER.error("mail atarken hata oluştu " + email + " " + ex.getMessage());
+				return false;
+			}
+		}
+		else{
+			LOGGER.warn("Mail servisinde hatalı mail "+email );
+			return false;
+		}
 	}
 
 	@Override
