@@ -34,7 +34,8 @@ public class EtkinlikController {
 
 	@GetMapping("/etkinlikList")
 	public ResponseEntity<List<Etkinlik>> getEtkiniks() {
-		List<Etkinlik> lstEtkinlik = this.service.list();		return new ResponseEntity<List<Etkinlik>>(lstEtkinlik, HttpStatus.OK);
+		List<Etkinlik> lstEtkinlik = this.service.list();	
+		return new ResponseEntity<List<Etkinlik>>(lstEtkinlik, HttpStatus.OK);
 	}
 	@GetMapping("/etkinlikMail/{konusmaciID}")
 	public ResponseEntity<Boolean> sendMail(@PathVariable("konusmaciID") Long konusmaciID) {
