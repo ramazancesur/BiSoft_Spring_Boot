@@ -1,5 +1,7 @@
 package com.bisoft.entities;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -23,6 +25,8 @@ public class Etkinlik extends BaseEntity {
 	private String saat;
 	@Column(name = "SURE")
 	private Integer sure;
+	@Column(name="ETKINLIK_TARIHI")
+	private Date etkinlikTarihi;
 
 	public String getAdi() {
 		return adi;
@@ -63,5 +67,14 @@ public class Etkinlik extends BaseEntity {
 	public void setSure(Integer sure) {
 		this.sure = sure;
 	}
+
+	public Date getEtkinlikTarihi() {
+		return etkinlikTarihi;
+	}
+
+	public void setEtkinlikTarihi(Date etkinlikTarihi) {
+		this.etkinlikTarihi = etkinlikTarihi;
+	}
+	
 
 }

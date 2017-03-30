@@ -15,6 +15,7 @@ public interface IEtkinlikKonusmaciRelDao extends GenericDao<Long, EtkinlikKonus
 
 	List<Etkinlik> getKonusmaciEtkinlik(Long konusmaciID);
 
+	List<Konusmaci> getGunlukEtkinlikKullaniciList();
 	/*
 	 * Eger istenirse bir tane hashMapden parametre olarak filitreleme yapılacak
 	 * alanlar alınabilir de fazla abartmak istemedim ,
